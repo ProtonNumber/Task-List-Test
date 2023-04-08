@@ -1,5 +1,5 @@
 #include "taskList.h"
-#include "stdio.h"
+#include "critSection.h"
 
 /* Initialises a blank task list */
 taskList_t tlInit(void) {
@@ -16,13 +16,18 @@ taskList_t tlInit(void) {
 uint8_t tlRun(taskList_t * tl) {
     uint8_t nextTail = (tl->tail + 1) % 32;
     task_t toRun;
+
+    int ints = disableInterrupts();
+
     if (tl->tail == tl->head) {
         // List is empty
+        enableInterrupts(ints);
         return 1;
     } else {
         // Run next task
         tl->tail = nextTail;
         toRun = tl->tasks[tl->tail];
+        enableInterrupts(ints);
         (toRun.taskPtr) (toRun.dataPtr);
         return 0;
     }
@@ -44,13 +49,16 @@ uint8_t tlAdd(taskList_t * tl, void (*taskPtr) (void * ), void * dataPtr) {
     toAdd.taskPtr = taskPtr;
     toAdd.dataPtr = dataPtr;
 
+    int ints = disableInterrupts();
     if(nextHead == tl->tail) {
         // List is full
+        enableInterrupts(ints);
         return 1;
     } else {
         // Add to list
         tl->head = nextHead;
         tl->tasks[nextHead] = toAdd;
+        enableInterrupts(ints);
         return 0;
     }
 }

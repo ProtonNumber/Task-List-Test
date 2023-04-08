@@ -16,7 +16,7 @@ int main(void) {
     sleep_ms(10000);
     repeating_timer_t fastTimer;
     repeating_timer_t slowTimer;
-    add_repeating_timer_us(100 * 1000, fastIRQ, NULL, &fastTimer);
+    add_repeating_timer_us(10 * 1000, fastIRQ, NULL, &fastTimer);
     add_repeating_timer_us(1000 * 1000, slowIRQ, NULL, &slowTimer);
 
     tl = tlInit();
@@ -41,6 +41,6 @@ bool fastIRQ(repeating_timer_t *rt) {
 void sampleTask(void * data) {
     // This'd probably work really well with a memory pool.
     char * str = data;
-
+    sleep_ms(10);
     printf("%s, Head: %d, Tail: %d\n", str, tl.head, tl.tail);
 }
